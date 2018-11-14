@@ -24,7 +24,7 @@ exports.store = (req, res) => {
 
             user.addContact(contact).then(() => {
 
-                res.send({
+                res.status(200).send({
                     "message": "Contact stored successfully!",
                     "status": "success"
                 });
@@ -77,9 +77,9 @@ exports.index = (req, res) => {
 
         user.getContacts().then((contacts) => {
 
-            res.send({
+            res.status(200).send({
                 "status": "success",
-                "contacts": contacts
+                contacts
             });
 
         }).
@@ -117,9 +117,9 @@ exports.view = (req, res) => {
 
         }
 
-        res.send({
+        res.status(200).send({
             "status": "success",
-            "contact": contact
+            contact
         });
 
     }).
@@ -131,4 +131,47 @@ exports.view = (req, res) => {
             });
 
         });
-}
+
+};
+
+exports.delete = (req, res) => {
+
+    Contact.findById(req.params.contactId).then((contact) => {
+
+        if (!contact) {
+
+            return res.status(404).send({
+                "message": "No contact found",
+                "status": "error"
+            });
+
+        }
+
+        contact.destroy().then(() => {
+
+            res.status(200).send({
+                "status": "success",
+                "message": "Contact deleted!"
+            });
+
+        }).
+            catch((err) => {
+
+                res.status(500).send({
+                    "message": `Fail! Error -> ${err}`,
+                    "status": "error"
+                });
+
+            });
+
+    }).
+        catch((err) => {
+
+            res.status(500).send({
+                "message": `Fail! Error -> ${err}`,
+                "status": "error"
+            });
+
+        });
+
+};
