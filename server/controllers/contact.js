@@ -106,52 +106,245 @@ exports.index = (req, res) => {
 
 exports.view = (req, res) => {
 
-    Contact.findById(req.params.contactId).then((contact) => {
+    User.findById(req.userId).then((user) => {
 
-        if (!contact) {
+        if (!user) {
 
-            return res.status(404).send({
-                "message": "No contact found",
+            return res.status(400).send({
+                "message": "You're not logged in",
                 "status": "error"
             });
 
         }
 
-        res.status(200).send({
-            "status": "success",
-            contact
-        });
+        user.getContacts({
+            where: {
+                id: req.params.contactId
+            }
+        }).then((contact) => {
 
-    }).
-        catch((err) => {
+            if (!contact) {
 
-            res.status(500).send({
-                "message": `Fail! Error -> ${err}`,
-                "status": "error"
+                return res.status(404).send({
+                    "message": "No contact found",
+                    "status": "error"
+                });
+
+            }
+
+            res.status(200).send({
+                "status": "success",
+                contact
             });
 
-        });
+        }).
+            catch((err) => res.status(500).send({
+                "message": `Fail! Error -> ${err}`,
+                "status": "error"
+            }));
+
+    }).
+        catch((err) => res.status(500).send({
+            "message": `Fail! Error -> ${err}`,
+            "status": "error"
+        }));
 
 };
 
 exports.delete = (req, res) => {
 
-    Contact.findById(req.params.contactId).then((contact) => {
+    User.findById(req.userId).then((user) => {
 
-        if (!contact) {
+        if (!user) {
 
-            return res.status(404).send({
-                "message": "No contact found",
+            return res.status(400).send({
+                "message": "You're not logged in",
                 "status": "error"
             });
 
         }
 
-        contact.destroy().then(() => {
+        user.getContacts({
+            where: {
+                id: req.params.contactId
+            }
+        }).then((contacts) => {
+
+            if (!contacts) {
+
+                return res.status(404).send({
+                    "message": "No contact found",
+                    "status": "error"
+                });
+
+            }
+
+            const contact = contacts[0];
+
+            contact.destroy().then(() => {
+
+                res.status(200).send({
+                    "status": "success",
+                    "message": "Contact deleted!"
+                });
+
+            }).
+                catch((err) => res.status(500).send({
+                    "message": `Fail! Error -> ${err}`,
+                    "status": "error"
+                }));
+
+        }).
+            catch((err) => res.status(500).send({
+                "message": `Fail! Error -> ${err}`,
+                "status": "error"
+            }));
+
+    }).
+        catch((err) => res.status(500).send({
+            "message": `Fail! Error -> ${err}`,
+            "status": "error"
+        }));
+
+};
+
+exports.star = (req, res) => {
+
+    User.findById(req.userId).then((user) => {
+
+        if (!user) {
+
+            return res.status(400).send({
+                "message": "You're not logged in",
+                "status": "error"
+            });
+
+        }
+
+        user.getContacts({
+            where: {
+                id: req.params.contactId
+            }
+        }).then((contacts) => {
+
+            if (!contacts) {
+
+                return res.status(404).send({
+                    "message": "No contact found",
+                    "status": "error"
+                });
+
+            }
+
+            const contact = contacts[0];
+
+            contact.update({starred: true}, {fields: ["starred"]}).then((contactObj) => res.status(200).send({
+                status: "success",
+                contact: contactObj
+            })).
+                catch((err) => res.status(500).send({
+                    "message": `Fail! Error -> ${err}`,
+                    "status": "error"
+                }));
+
+        }).
+            catch((err) => res.status(500).send({
+                "message": `Fail! Error -> ${err}`,
+                "status": "error"
+            }));
+
+    }).
+        catch((err) => res.status(500).send({
+            "message": `Fail! Error -> ${err}`,
+            "status": "error"
+        }));
+
+};
+
+exports.update = (req, res) => {
+
+    User.findById(req.userId).then((user) => {
+
+        if (!user) {
+
+            return res.status(400).send({
+                "message": "You're not logged in",
+                "status": "error"
+            });
+
+        }
+
+        user.getContacts({
+            where: {
+                id: req.params.contactId
+            }
+        }).then((contacts) => {
+
+            if (!contacts) {
+
+                return res.status(404).send({
+                    "message": "No contact found",
+                    "status": "error"
+                });
+
+            }
+
+            const contact = contacts[0];
+
+            const att = Object.keys(req.body);
+            att.forEach((key) => {
+
+                contact[key] = req.body[att];
+
+            });
+
+            contact.save({
+                fields: att
+            }).then((contactObj) => res.status(200).send({
+                status: "success",
+                contact: contactObj
+            })).
+                catch((err) => res.status(500).send({
+                    "message": `Fail! Error -> ${err}`,
+                    "status": "error"
+                }));
+
+        }).
+            catch((err) => res.status(500).send({
+                "message": `Fail! Error -> ${err}`,
+                "status": "error"
+            }));
+
+    }).
+        catch((err) => res.status(500).send({
+            "message": `Fail! Error -> ${err}`,
+            "status": "error"
+        }));
+
+};
+
+exports.starred = (req, res) => {
+
+    User.findById(req.userId).then((user) => {
+
+        if (!user) {
+
+            return res.status(200).send({
+                "message": "No contacts found",
+                "status": "success"
+            });
+
+        }
+
+        user.getContacts({
+            where: {
+                starred: true
+            }
+        }).then((contacts) => {
 
             res.status(200).send({
                 "status": "success",
-                "message": "Contact deleted!"
+                contacts
             });
 
         }).
