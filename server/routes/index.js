@@ -11,9 +11,12 @@ module.exports = (app) => {
     app.post("/api/user/login", user.signin);
     app.post("/api/user/logout", [verifyJwtToken.verifyToken], user.signout);
 
-    app.post("/api/contacts", [verifyJwtToken.verifyToken], contact.store);
-    app.get("/api/contacts", [verifyJwtToken.verifyToken], contact.index);
-    app.get("/api/contacts/:contactId", contact.view);
-    app.delete("/api/contacts/:contactId", contact.delete);
+    app.post("/api/contact", [verifyJwtToken.verifyToken], contact.store);
+    app.get("/api/contact", [verifyJwtToken.verifyToken], contact.index);
+    app.get("/api/contact/:contactId", [verifyJwtToken.verifyToken], contact.view);
+    app.delete("/api/contact/:contactId", [verifyJwtToken.verifyToken], contact.delete);
+    app.patch("/api/contact/:contactId/star", [verifyJwtToken.verifyToken], contact.star);
+    app.patch("/api/contact/:contactId", [verifyJwtToken.verifyToken], contact.update);
+    app.get("/api/contacts/starred", [verifyJwtToken.verifyToken], contact.starred);
 
 };
