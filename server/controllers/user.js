@@ -1,5 +1,6 @@
 /* eslint quote-props: 0 */
 /* eslint no-sync: 0 */
+/* eslint sort-keys: 0 */
 /* eslint no-magic-numbers: 0 */
 /* eslint no-process-env: "warn" */
 /* eslint max-len: 0 */
@@ -9,6 +10,9 @@
 const models = require("../models");
 const User = models.User;
 const bcrypt = require("bcrypt-nodejs");
+const env = process.env.NODE_ENV || "development";
+const jwt = require("jsonwebtoken");
+const config = require(`${__dirname}/../config/config.json`)[env];
 
 exports.signup = (req, res) => {
 
@@ -22,6 +26,56 @@ exports.signup = (req, res) => {
         res.send({
             "message": "User registered successfully!",
             "status": "success"
+        });
+
+    }).
+        catch((err) => {
+
+            res.status(500).send({
+                "message": `Fail! Error -> ${err}`,
+                "status": "error"
+            });
+
+        });
+
+};
+
+exports.signin = (req, res) => {
+
+    User.findOne({
+        where: {
+            email: req.body.email
+        }
+    }).then((user) => {
+
+        if (!user) {
+
+            return res.status(404).send({
+                "message": "User not found!",
+                "status": "error"
+            });
+
+        }
+
+        const passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
+        if (!passwordIsValid) {
+
+            return res.status(401).send({
+                status: "error",
+                auth: false,
+                reason: "Invalid Password!"
+            });
+
+        }
+
+        const token = jwt.sign({id: user.id}, config.secret, {
+            expiresIn: 86400
+        });
+
+        res.status(200).send({
+            accessToken: token,
+            auth: true,
+            status: "success"
         });
 
     }).
