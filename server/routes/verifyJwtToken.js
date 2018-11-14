@@ -6,6 +6,8 @@
 const env = process.env.NODE_ENV || "development";
 const jwt = require("jsonwebtoken");
 const config = require(`${__dirname}/../config/config.json`)[env];
+const models = require("../models");
+const User = models.User;
 
 const verifyToken = (req, res, next) => {
 
@@ -30,8 +32,39 @@ const verifyToken = (req, res, next) => {
             });
 
         }
-        req.userId = decoded.id;
+
+        User.findById(decoded.id).then((user) => {
+
+        if (!user) {
+
+            return res.status(404).send({
+                "message": "User not found!",
+                "status": "error"
+            });
+
+        }
+
+        if (!user.loggedin) {
+
+            return res.status(404).send({
+                "message": "User not logged in!",
+                "status": "error"
+            });
+
+        }
+
+        req.userId = user.id;
         next();
+
+    }).
+        catch((err) => {
+
+            res.status(500).send({
+                "message": `Fail! Error -> ${err}`,
+                "status": "error"
+            });
+
+        });
 
     });
 

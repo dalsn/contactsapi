@@ -40,6 +40,39 @@ exports.signup = (req, res) => {
 
 };
 
+exports.signout = (req, res) => {
+
+    User.findById(req.userId).then((user) => {
+
+        if (!user) {
+
+            return res.status(404).send({
+                "message": "User not logged in!",
+                "status": "error"
+            });
+
+        }
+
+        user.update({
+            loggedin: false
+        }).then(() => res.status(200).send({
+            accessToken: null,
+            auth: false,
+            status: "success"
+        }));
+
+    }).
+        catch((err) => {
+
+            res.status(500).send({
+                "message": `Fail! Error -> ${err}`,
+                "status": "error"
+            });
+
+        });
+
+};
+
 exports.signin = (req, res) => {
 
     User.findOne({
@@ -69,23 +102,21 @@ exports.signin = (req, res) => {
         }
 
         const token = jwt.sign({id: user.id}, config.secret, {
-            expiresIn: 86400
+            expiresIn: 7200
         });
 
-        res.status(200).send({
+        user.update({
+            loggedin: true
+        }).then(() => res.status(200).send({
             accessToken: token,
             auth: true,
             status: "success"
-        });
+        }));
 
     }).
-        catch((err) => {
-
-            res.status(500).send({
-                "message": `Fail! Error -> ${err}`,
-                "status": "error"
-            });
-
-        });
+        catch((err) => res.status(500).send({
+            "message": `Fail! Error -> ${err}`,
+            "status": "error"
+        }));
 
 };

@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
         password: {
             allowNull: false,
             type: DataTypes.STRING
+        },
+        loggedin: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
 
     });
