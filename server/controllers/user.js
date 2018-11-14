@@ -172,3 +172,45 @@ exports.addContact = (req, res) => {
         });
 
 };
+
+exports.getContacts = (req, res) => {
+
+    User.findById(req.userId).then((user) => {
+
+        if (!user) {
+
+            return res.status(200).send({
+                "message": "No contacts found",
+                "status": "success"
+            });
+
+        }
+
+        user.getContacts().then((contacts) => {
+
+            res.send({
+                "status": "success",
+                "contacts": contacts
+            });
+
+        }).
+            catch((err) => {
+
+                res.status(500).send({
+                    "message": `Fail! Error -> ${err}`,
+                    "status": "error"
+                });
+
+            });
+
+    }).
+        catch((err) => {
+
+            res.status(500).send({
+                "message": `Fail! Error -> ${err}`,
+                "status": "error"
+            });
+
+        });
+
+};

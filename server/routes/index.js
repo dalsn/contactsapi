@@ -11,5 +11,6 @@ module.exports = (app) => {
     app.post("/api/user/logout", [verifyJwtToken.verifyToken], user.signout);
 
     app.post("/api/contact", [verifyJwtToken.verifyToken], user.addContact);
+    app.get("/api/contact", [verifyJwtToken.verifyToken], user.getContacts);
 
 };
