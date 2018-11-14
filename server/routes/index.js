@@ -13,6 +13,7 @@ module.exports = (app) => {
 
     app.post("/api/contacts", [verifyJwtToken.verifyToken], contact.store);
     app.get("/api/contacts", [verifyJwtToken.verifyToken], contact.index);
-    app.get('/api/contacts/:contactId', contact.view);
+    app.get("/api/contacts/:contactId", contact.view);
+    app.delete("/api/contacts/:contactId", contact.delete);
 
 };
