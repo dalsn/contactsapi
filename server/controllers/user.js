@@ -9,6 +9,7 @@
 
 const models = require("../models");
 const User = models.User;
+const Contact = models.Contact;
 const bcrypt = require("bcrypt-nodejs");
 const env = process.env.NODE_ENV || "development";
 const jwt = require("jsonwebtoken");
@@ -118,5 +119,56 @@ exports.signin = (req, res) => {
             "message": `Fail! Error -> ${err}`,
             "status": "error"
         }));
+
+};
+
+exports.addContact = (req, res) => {
+
+    // Save Contact to Database
+    Contact.create({
+        email: req.body.email,
+        name: req.body.name,
+        phone: req.body.phone
+    }).then((contact) => {
+
+        User.findById(req.userId).then((user) => {
+
+            user.addContact(contact).then(() => {
+
+                res.send({
+                    "message": "Contact stored successfully!",
+                    "status": "success"
+                });
+
+            }).
+                catch((err) => {
+
+                    res.status(500).send({
+                        "message": `Fail! Error -> ${err}`,
+                        "status": "error"
+                    });
+
+                });
+
+        }).
+            catch((err) => {
+
+                res.status(500).send({
+                    "message": `Fail! Error -> ${err}`,
+                    "status": "error"
+                });
+
+            });
+
+
+    }).
+        catch((err) => {
+
+            res.status(500).send({
+                "message": `Fail! Error -> ${err}`,
+                "status": "error"
+            });
+
+        });
 
 };

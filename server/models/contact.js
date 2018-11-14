@@ -8,35 +8,35 @@
 
 module.exports = (sequelize, DataTypes) => {
 
-    const User = sequelize.define("User", {
+    const Contact = sequelize.define("Contact", {
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         email: {
-            allowNull: false,
             type: DataTypes.STRING,
+            allowNull: false
         },
-        username: {
-            allowNull: false,
+        phone: {
             type: DataTypes.STRING,
+            allowNull: false
         },
-        password: {
-            allowNull: false,
-            type: DataTypes.STRING,
-        },
-        loggedin: {
+        starred: {
             type: DataTypes.BOOLEAN,
-            defaultValue: false
+            defaultValue: false,
+        },
+        userId: {
+            type: DataTypes.INTEGER
         }
-
     }, {});
+    Contact.associate = (models) => {
 
-    User.associate = (models) => {
-
-        User.hasMany(models.Contact, {
+        Contact.belongsTo(models.User, {
             foreignKey: "userId",
-            as: "contacts"
+            onDelete: "CASCADE"
         });
 
     };
-
-    return User;
+    return Contact;
 
 };
